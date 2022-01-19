@@ -13,6 +13,7 @@ public class PlayerRaycastController : MonoBehaviour
     private LineRenderer _lineRenderer;
     private Ray _ray;
     private RaycastHit _hit;
+    private float remainingLength;
     
     private readonly List<Vector3> _enemyHitPositions = new List<Vector3>();
 
@@ -25,6 +26,7 @@ public class PlayerRaycastController : MonoBehaviour
     private void Update()
     {
         UpdateRay();
+        DrawRay();
     }
 
     private void UpdateRay()
@@ -32,14 +34,10 @@ public class PlayerRaycastController : MonoBehaviour
         _enemyHitPositions.Clear();
         
         _ray = new Ray(_rayStartPosition.transform.position, _rayStartPosition.transform.forward);
-        float remainingLength = _maxLength;
-        
-        _lineRenderer.positionCount = 1;
-        _lineRenderer.SetPosition(0, _rayStartPosition.transform.position);
+        remainingLength = _maxLength;
 
         for (int i = 0; i < _reflectionsNumber; i++)
         {
-            _lineRenderer.positionCount++;
             if (Physics.Raycast(_ray.origin, _ray.direction, out _hit, remainingLength, _layersToHit))
             {
                 if (_hit.collider.TryGetComponent(out Enemy enemy))
@@ -48,8 +46,6 @@ public class PlayerRaycastController : MonoBehaviour
                 }
                 remainingLength -= Vector3.Distance(_ray.origin, _hit.point);
                 _ray = new Ray(_hit.point, Vector3.Reflect(_ray.direction, _hit.normal));
-                
-                _lineRenderer.SetPosition(_lineRenderer.positionCount - 1, _hit.point);
             }
         }
         
@@ -62,5 +58,29 @@ public class PlayerRaycastController : MonoBehaviour
             PlayerRaycastEventBrocker.InvokeEnemiesIsHit(_enemyHitPositions.ToArray());
         else
             PlayerRaycastEventBrocker.InvokeOnEnemiesIsNotHit();
+    }
+    
+    private void DrawRay()
+    {
+        _lineRenderer.positionCount = 1;
+        _lineRenderer.SetPosition(0, _rayStartPosition.transform.position);
+        
+        _ray = new Ray(_rayStartPosition.transform.position, _rayStartPosition.transform.forward);
+        remainingLength = _maxLength;
+        
+        for (int i = 0; i < _reflectionsNumber; i++)
+        {
+            _lineRenderer.positionCount++;
+            if (Physics.Raycast(_ray.origin, _ray.direction, out _hit, remainingLength, _layersToHit))
+            {
+                _lineRenderer.SetPosition(_lineRenderer.positionCount - 1, _hit.point);
+                remainingLength -= Vector3.Distance(_ray.origin, _hit.point);
+                _ray = new Ray(_hit.point, Vector3.Reflect(_ray.direction, _hit.normal));
+            }
+            else
+            {
+                _lineRenderer.SetPosition(_lineRenderer.positionCount - 1, _ray.origin + _ray.direction * remainingLength);
+            }
+        }
     }
 }
