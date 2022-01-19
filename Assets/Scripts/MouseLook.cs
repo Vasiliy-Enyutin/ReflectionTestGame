@@ -10,10 +10,10 @@ public class MouseLook : MonoBehaviour
  
     private void Awake()
     {
-        Cursor.lockState = CursorLockMode.Locked;
-        
         _playerInput = GetComponent<PlayerInput>();
         
+        Cursor.lockState = CursorLockMode.Locked;
+
         _rotationY = transform.localRotation.eulerAngles.x;
     }
  

@@ -1,52 +1,43 @@
-using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerHintController : MonoBehaviour
 {
     [SerializeField] private PlayerHint _hintPrefab;
-    
-    private readonly Dictionary<Enemy, PlayerHint> _enemies = new Dictionary<Enemy, PlayerHint>();
+    [SerializeField] private int _poolDefaultCount;
+    [SerializeField] private bool _autoExpand;
+    [SerializeField] private Transform _container;
+
+    private PoolMonobehavior<PlayerHint> _hints;
 
 
-    private void OnDisable()
+    private void Awake()
     {
-        PlayerRaycastEventBroker.OnEnemyIsHit -= UpdateHint;
+        _hints = new PoolMonobehavior<PlayerHint>(_hintPrefab, _poolDefaultCount, _autoExpand, _container);
     }
 
     private void Start()
     {
-        PlayerRaycastEventBroker.OnEnemyIsHit += UpdateHint;
-        PlayerRaycastEventBroker.OnEnemyIsNotHitAnymore += UnregisterHint;
+        PlayerRaycastEventBrocker.OnEnemiesIsHit += MoveHints;
+        PlayerRaycastEventBrocker.OnEnemiesIsNotHit += DeactivateHints;
     }
 
-    private void UpdateHint(Enemy enemy, Vector3 hitPosition)
+    private void OnDisable()
     {
-        if (_enemies.ContainsKey(enemy))
-            UpdateHintPosition(_enemies[enemy], hitPosition);
-        else
-            RegisterHint(enemy, hitPosition);
+        PlayerRaycastEventBrocker.OnEnemiesIsHit -= MoveHints;
+        PlayerRaycastEventBrocker.OnEnemiesIsNotHit -= DeactivateHints;
     }
 
-    private void UpdateHintPosition(PlayerHint hint, Vector3 newHitPosition)
+    private void MoveHints(Vector3[] positionsForSpawn)
     {
-        hint.transform.position = newHitPosition;
-    }
-    
-    private void RegisterHint(Enemy enemy, Vector3 hitPosition)
-    {
-        PlayerHint hint = Instantiate(_hintPrefab, hitPosition, Quaternion.identity);
-        _enemies.Add(enemy, hint);
-    }
-    
-    private void UnregisterHint(Enemy enemy)
-    {
-        if (_enemies.ContainsKey(enemy))
+        DeactivateHints();
+        foreach (Vector3 newPosition in positionsForSpawn)
         {
-            if (_enemies.TryGetValue(enemy, out PlayerHint hint))
-            {
-                hint.Destroy();
-            }
-            _enemies.Remove(enemy);
+            _hints.GetFreeElement().transform.position = newPosition;
         }
+    }
+
+    private void DeactivateHints()
+    {
+        _hints.DeactivateObjects();
     }
 }

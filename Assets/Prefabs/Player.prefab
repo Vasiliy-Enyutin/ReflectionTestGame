@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: -7195340423904939968}
   - component: {fileID: 7567880344075492449}
   - component: {fileID: 127234930980199725}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: Player
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -72,6 +72,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8f80dd957d21da343a51473af1cc8605, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _layersToHit:
+    serializedVersion: 2
+    m_Bits: 1
+  _rayStartPosition: {fileID: 2781180048690677888}
+  _reflectionsNumber: 2
+  _maxLength: 100
 --- !u!1 &2781180048083389529
 GameObject:
   m_ObjectHideFlags: 0
@@ -83,7 +89,7 @@ GameObject:
   - component: {fileID: 2781180048083389528}
   - component: {fileID: 2781180048083389534}
   - component: {fileID: 2781180048083389535}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: PlayerGFX
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -164,7 +170,7 @@ GameObject:
   - component: {fileID: 2781180048690677895}
   - component: {fileID: 2781180048690677888}
   - component: {fileID: 2781180048690677889}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: Main Camera
   m_TagString: MainCamera
   m_Icon: {fileID: 0}
